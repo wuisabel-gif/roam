@@ -6,6 +6,20 @@
 
 > ⚠️ Early prototype — expect rough edges as the skill grows.
 
+## A look inside
+
+The showcase — install, see what it builds, and a live geometry demo:
+
+![Roam showcase](screenshots/roam-site.png)
+
+Real-time wireframe geometry — the Three.js engine Roam builds on (the five Platonic solids + a torus mesh):
+
+![Wireframe geometry](screenshots/geometry.png)
+
+A world it builds — the Backrooms, Level 0:
+
+![Backrooms — Level 0](screenshots/backrooms.png)
+
 ## Install on your Claude
 
 Clone this repo straight into your skills folder:
