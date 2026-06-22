@@ -150,7 +150,18 @@
   footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;}
   footer a{color:var(--soft);text-decoration:none;}
   footer a:hover{color:var(--ink);}
+
+  /* live geometry demo */
+  .demo3d{position:relative;height:clamp(340px,52vh,520px);border-radius:20px;overflow:hidden;border:1px solid var(--line);
+    background:radial-gradient(110% 90% at 50% 40%, #160f2c, #0a0712 75%);}
+  .demo3d canvas{display:block;width:100%;height:100%;}
+  .demo3d .d3tag{position:absolute;left:16px;bottom:14px;z-index:2;font-family:"Space Mono",monospace;font-size:10.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--mut);pointer-events:none;}
+  .demo3d .d3tag b{color:hsl(280 80% 80%);}
+  .demo3d .d3hint{position:absolute;right:16px;top:14px;z-index:2;font-family:"Space Mono",monospace;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--mut);pointer-events:none;}
 </style>
+<script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }</script>
 </head>
 <body>
 <div class="walkbg" aria-hidden="true"><span class="wfloor"></span><span class="wceil"></span></div>
@@ -200,6 +211,16 @@
       <a class="btn ghost" href="#examples">▶ See what it builds</a>
     </div>
   </header>
+
+  <section id="demo">
+    <div class="seclabel">Real 3D · running right now</div>
+    <h2 class="fr">A taste of the engine</h2>
+    <p class="sub">This is live Three.js in your browser — wireframe geometry rendered in real time, the same engine Roam uses for walkable rooms. Move your mouse to swing the view.</p>
+    <div class="demo3d" id="demo3d">
+      <div class="d3hint">move mouse · live</div>
+      <div class="d3tag"><b>●</b> three.js · wireframe geometry · ~120 lines</div>
+    </div>
+  </section>
 
   <section id="examples">
     <div class="seclabel">Built with the skill</div>
@@ -309,6 +330,88 @@ museum of my photography.</code></pre>
     });
   });
 })();
+</script>
+
+<!-- live wireframe-geometry demo (real Three.js) -->
+<script type="module">
+  import * as THREE from 'three';
+  var host = document.getElementById('demo3d');
+  if (host) {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    host.appendChild(renderer.domElement);
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.set(0, 0, 9);
+
+    var COLORS = [0xA6C44E, 0xE054A0, 0x9B6BE0, 0x3FB6CF, 0x2FB58A];
+    function wire(geo, color){
+      return new THREE.LineSegments(
+        new THREE.WireframeGeometry(geo),
+        new THREE.LineBasicMaterial({ color: color, transparent:true, opacity:0.9 })
+      );
+    }
+    var group = new THREE.Group(); scene.add(group);
+
+    // central icosahedron
+    var core = wire(new THREE.IcosahedronGeometry(2.1, 1), 0x9B6BE0);
+    group.add(core);
+
+    // orbiting platonic/torus shapes
+    var sats = [];
+    var geos = [
+      new THREE.TorusKnotGeometry(0.6, 0.22, 64, 8),
+      new THREE.OctahedronGeometry(0.85),
+      new THREE.TetrahedronGeometry(0.9),
+      new THREE.DodecahedronGeometry(0.8),
+      new THREE.TorusGeometry(0.7, 0.22, 10, 24),
+      new THREE.BoxGeometry(1.1, 1.1, 1.1)
+    ];
+    for (var i = 0; i < geos.length; i++){
+      var m = wire(geos[i], COLORS[i % COLORS.length]);
+      var a = (i / geos.length) * Math.PI * 2;
+      m.userData = { a:a, r:4.2, spin:0.3 + i*0.12, tilt:i*0.5, sp:0.4 + i*0.08 };
+      group.add(m); sats.push(m);
+    }
+
+    // faint star dust
+    var pg = new THREE.BufferGeometry(), N = 260, pos = new Float32Array(N*3);
+    for (var p = 0; p < N*3; p++) pos[p] = (Math.random()-0.5)*26;
+    pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    scene.add(new THREE.Points(pg, new THREE.PointsMaterial({ color:0x9B6BE0, size:0.05, transparent:true, opacity:0.5 })));
+
+    var mx = 0, my = 0, tx = 0, ty = 0;
+    host.addEventListener('pointermove', function(e){
+      var r = host.getBoundingClientRect();
+      tx = ((e.clientX - r.left)/r.width - 0.5) * 0.9;
+      ty = ((e.clientY - r.top)/r.height - 0.5) * 0.7;
+    });
+
+    function size(){
+      var w = host.clientWidth, h = host.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+    }
+    addEventListener('resize', size); size();
+
+    var t = 0;
+    function loop(){
+      requestAnimationFrame(loop);
+      t += 0.01;
+      mx += (tx - mx) * 0.05; my += (ty - my) * 0.05;
+      group.rotation.y = t * 0.25 + mx * 1.4;
+      group.rotation.x = my * 1.1;
+      core.rotation.y -= 0.004; core.rotation.x += 0.002;
+      for (var i = 0; i < sats.length; i++){
+        var s = sats[i], d = s.userData, ang = d.a + t * d.sp;
+        s.position.set(Math.cos(ang)*d.r, Math.sin(ang*0.8)*1.6, Math.sin(ang)*d.r);
+        s.rotation.x += 0.01*d.spin; s.rotation.y += 0.013*d.spin;
+      }
+      renderer.render(scene, camera);
+    }
+    if (reduce){ size(); renderer.render(scene, camera); } else loop();
+  }
 </script>
 </body>
 </html>
