@@ -45,14 +45,6 @@ Two tracks, both single-file and dependency-light:
 - **CSS-3D corridor** — turn any ordered list into a glowing doorway-lined hallway you scroll through (flip-for-info cards, HUD, end handoff). Zero dependencies.
 - **Three.js first-person rooms** — a real room you walk with WASD + mouse-look: GLB furniture, tileable textures, and rooms you step inside *behind paintings*. Loaded from a CDN importmap — still no build.
 
-## Worlds made with it
-
-| World | Live |
-|---|---|
-| **Kpop Crush — The Hall of Eras** (CSS-3D corridor) | https://wuisabel-gif.github.io/kpop-crush/ |
-| **The College Playbook — Campus Walk** (A-Frame) | https://wuisabel-gif.github.io/university-of-spoiled-children/ |
-| **Backrooms — Level 0** (WebGL) | https://wuisabel-gif.github.io/backroom_level_0/ |
-
 ## What's in this repo
 
 - `SKILL.md` — the skill Claude follows (mental model, build order, dials, failure modes)
