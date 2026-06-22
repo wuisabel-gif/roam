@@ -1,0 +1,7 @@
+# third-party demos — not part of this repo
+gallery-master/
+3d_master/
+
+# os cruft
+.DS_Store
+**/.DS_Store

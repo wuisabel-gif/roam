@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roam — immersive walkable 3D worlds (prototype)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23A6C44E'/%3E%3Cstop offset='.5' stop-color='%239B6BE0'/%3E%3Cstop offset='1' stop-color='%233FB6CF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='none' stroke='url(%23g)' stroke-linecap='round'%3E%3Cpath stroke-width='3' d='M16 82 L16 40 C16 8 104 8 104 40 L104 82'/%3E%3Cpath stroke-width='2.6' d='M31 82 L31 46 C31 20 89 20 89 46 L89 82'/%3E%3Cpath stroke-width='2.2' d='M46 82 L46 52 C46 32 74 32 74 52 L74 82'/%3E%3Ccircle cx='60' cy='76' r='3.4' fill='url(%23g)'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjQTZDNDRFIi8+PHN0b3Agb2Zmc2V0PSIuMjgiIHN0b3AtY29sb3I9IiNFMDU0QTAiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjOUI2QkUwIi8+PHN0b3Agb2Zmc2V0PSIuNzIiIHN0b3AtY29sb3I9IiMzRkI2Q0YiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyRkI1OEEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSI3IiBmaWxsPSJ1cmwoI2cpIi8+PHJlY3QgeD0iMi44IiB5PSIyLjgiIHdpZHRoPSIyNi40IiBoZWlnaHQ9IjI2LjQiIHJ4PSI2LjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9Ii41IiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSIxNiIgeT0iMjMuNSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI5MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiPks8L3RleHQ+PC9zdmc+">
+<style>
+  :root{
+    --bg:#0a0712; --bg2:#120c22; --panel:#171028; --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.06);
+    --ink:#f4f1fb; --soft:rgba(244,241,251,.74); --mut:rgba(244,241,251,.5);
+    --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  body{background:radial-gradient(120% 80% at 50% -10%, #1a1130 0%, #0a0712 55%);color:var(--ink);
+    font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;}
+  .fr{font-family:"Fraunces",Georgia,serif;}
+  .mono{font-family:"Space Mono",monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,48px);}
+  .topfoil{position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+    background:linear-gradient(90deg,hsl(88 75% 70%),hsl(332 75% 72%),hsl(276 70% 72%),hsl(192 70% 68%),hsl(158 65% 66%),hsl(88 75% 70%));
+    background-size:200% 100%;animation:foilslide 14s linear infinite;}
+  @keyframes foilslide{to{background-position:-200% 0;}}
+  @media (prefers-reduced-motion:reduce){.topfoil{animation:none;}}
+
+  /* walking corridor — ambient animated background */
+  .walkbg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;perspective:260px;perspective-origin:50% 48%;}
+  .walkbg>span{position:absolute;left:-60%;width:220%;height:135%;opacity:.12;
+    background-image:
+      repeating-linear-gradient(90deg, transparent 0 76px, hsl(276 70% 72%/.9) 76px 80px),
+      repeating-linear-gradient(0deg,  transparent 0 76px, hsl(192 70% 70%/.7) 76px 80px);
+    background-size:80px 80px; animation:walkfwd 3.4s linear infinite;}
+  .walkbg .wfloor{bottom:-32%;transform:rotateX(80deg);transform-origin:bottom center;}
+  .walkbg .wceil{top:-32%;transform:rotateX(-80deg);transform-origin:top center;}
+  .walkbg::after{content:"";position:absolute;inset:0;background:radial-gradient(62% 54% at 50% 50%, transparent 0, var(--bg) 88%);}
+  @keyframes walkfwd{from{background-position:0 0,0 0;}to{background-position:0 80px,0 80px;}}
+  @media (prefers-reduced-motion:reduce){.walkbg>span{animation:none;}}
+  .wrap,footer{position:relative;z-index:1;}   /* keep content above the corridor */
+
+  /* drifting light motes */
+  .motes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .motes i{position:absolute;bottom:-24px;display:block;border-radius:50%;filter:blur(1px);opacity:0;
+    background:radial-gradient(circle, hsl(var(--mh,276) 85% 76%/.95), transparent 70%);
+    animation:drift linear infinite;}
+  @keyframes drift{0%{transform:translateY(0) scale(.5);opacity:0;}12%{opacity:.7;}88%{opacity:.45;}100%{transform:translateY(-112vh) scale(1.15);opacity:0;}}
+  @media (prefers-reduced-motion:reduce){.motes{display:none;}}
+
+  /* logo mark */
+  .logo{display:block;margin:0 auto 18px;width:74px;height:auto;filter:drop-shadow(0 4px 22px hsl(276 80% 55%/.5));}
+  @media (prefers-reduced-motion:no-preference){.logo .arch{animation:archpulse 4s ease-in-out infinite;}}
+  .logo .arch.a2{animation-delay:.5s;} .logo .arch.a3{animation-delay:1s;}
+  @keyframes archpulse{0%,100%{opacity:var(--o,1);}50%{opacity:calc(var(--o,1) * .55);}}
+
+  /* hero */
+  header{padding:clamp(56px,12vh,120px) 0 24px;text-align:center;}
+  .kick{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:hsl(280 80% 78%);margin-bottom:22px;}
+  h1{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(3rem,9vw,6rem);line-height:.94;letter-spacing:-.02em;text-wrap:balance;
+    background:linear-gradient(100deg,#A6C44E,#E054A0,#9B6BE0,#3FB6CF,#2FB58A);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 4px 30px hsl(280 80% 55% /.45));margin-bottom:18px;}
+  .lead{max-width:54ch;margin:0 auto 30px;color:var(--soft);font-size:1.12rem;text-wrap:pretty;}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-weight:600;font-size:.98rem;padding:13px 22px;border-radius:999px;transition:transform .25s var(--ease),box-shadow .25s var(--ease);}
+  .btn.primary{color:#0a0712;background:linear-gradient(100deg,#C492E6,#9B6BE0);box-shadow:0 12px 30px hsl(276 80% 55% /.5);}
+  .btn.ghost{color:var(--ink);border:1px solid var(--line);background:rgba(255,255,255,.03);}
+  .btn:hover{transform:translateY(-2px);}
+
+  /* section scaffolding */
+  section{padding:clamp(48px,8vh,90px) 0;}
+  .seclabel{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);margin-bottom:12px;}
+  h2{font-family:"Fraunces",serif;font-weight:900;font-size:clamp(1.8rem,4.5vw,2.8rem);line-height:1.04;letter-spacing:-.02em;margin-bottom:14px;text-wrap:balance;}
+  .sub{color:var(--soft);max-width:60ch;margin-bottom:30px;text-wrap:pretty;}
+
+  /* LIVE inline mini-corridor (built with the skill) */
+  .demo{position:relative;height:420px;border-radius:20px;overflow:hidden;border:1px solid var(--line);
+    background:radial-gradient(120% 90% at 50% 40%, #1a1230, #0a0712 80%);perspective:780px;perspective-origin:50% 46%;}
+  .demo::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;
+    background:radial-gradient(115% 80% at 50% 46%, transparent 42%, rgba(8,5,16,.6) 80%, rgba(8,5,16,.95) 100%);}
+  .dworld{position:absolute;inset:0;transform-style:preserve-3d;}
+  .dcard{position:absolute;left:50%;top:50%;width:150px;height:210px;border-radius:12px;transform-style:preserve-3d;
+    background:linear-gradient(180deg,hsl(var(--h) 45% 18%),hsl(var(--h) 50% 9%));
+    border:1.5px solid hsl(var(--h) 85% 65% /.7);box-shadow:0 0 34px hsl(var(--h) 85% 55% /.45), inset 0 0 36px hsl(var(--h) 70% 40% /.3);
+    display:flex;align-items:flex-end;justify-content:center;}
+  .dcard span{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#fff;padding:0 0 12px;text-shadow:0 1px 6px rgba(0,0,0,.7);}
+  .dtag{position:absolute;left:16px;bottom:14px;z-index:6;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);}
+  .dtag b{color:hsl(280 80% 80%);}
+
+  /* example embeds — single horizontal row, scroll to see them all */
+  .examples{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding-bottom:14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+  .examples::-webkit-scrollbar{height:8px;}
+  .examples::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
+  .ex{flex:0 0 340px;scroll-snap-align:start;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);}
+  @media(max-width:520px){.ex{flex-basis:84vw;}}
+  #examples{position:relative;}
+  .scrollhint{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-left:6px;}
+  .exnav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:42px;height:42px;border-radius:50%;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;
+    transition:filter .2s var(--ease),opacity .2s;box-shadow:0 6px 20px rgba(0,0,0,.4);}
+  .exnav:hover{filter:brightness(1.3);}
+  .exnav.prev{left:-8px;} .exnav.next{right:-8px;}
+  .exnav[disabled]{opacity:.25;cursor:default;}
+  @media(max-width:520px){.exnav{display:none;}}
+  .ghtop{position:fixed;top:18px;right:18px;z-index:60;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:var(--ink);background:var(--panel);border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.4);transition:filter .2s var(--ease),transform .2s var(--ease);}
+  .ghtop:hover{filter:brightness(1.35);transform:translateY(-2px);}
+  .ex .frame{position:relative;aspect-ratio:16/10;background:#0a0712;overflow:hidden;}
+  .ex .poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;border:0;width:100%;color:var(--ink);
+    background:radial-gradient(120% 90% at 50% 30%, var(--pc1), var(--pc2) 80%);transition:filter .3s var(--ease);}
+  .ex .poster:hover{filter:brightness(1.08);}
+  .ex .poster .play{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;
+    background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.4);backdrop-filter:blur(4px);}
+  .ex .poster .pl{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.85);}
+  .ex iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .ex .meta{padding:16px 18px 18px;}
+  .ex .eng{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:hsl(var(--h) 70% 72%);
+    background:hsl(var(--h) 70% 60% /.14);border:1px solid hsl(var(--h) 60% 55% /.3);padding:3px 9px;border-radius:999px;display:inline-block;margin-bottom:10px;}
+  .ex h3{font-family:"Fraunces",serif;font-weight:600;font-size:1.2rem;margin-bottom:4px;}
+  .ex p{color:var(--soft);font-size:.95rem;}
+  .ex .open{display:inline-block;margin-top:12px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:hsl(280 80% 80%);text-decoration:none;}
+  .ex .open:hover{text-decoration:underline;}
+
+  /* engines */
+  .engines{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:780px){.engines{grid-template-columns:1fr;}}
+  .eng-card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:22px;}
+  .eng-card .e{font-size:26px;margin-bottom:10px;}
+  .eng-card h4{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;margin-bottom:6px;}
+  .eng-card p{color:var(--soft);font-size:.92rem;}
+  .eng-card .tag{margin-top:12px;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);}
+  .eng-card .rl{display:inline-block;margin-top:14px;font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:hsl(280 80% 80%);text-decoration:none;}
+  .eng-card .rl:hover{text-decoration:underline;}
+
+  footer{border-top:1px solid var(--line);padding:48px 0 80px;text-align:center;color:var(--mut);}
+  footer .links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;}
+  footer a{color:var(--soft);text-decoration:none;}
+  footer a:hover{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="walkbg" aria-hidden="true"><span class="wfloor"></span><span class="wceil"></span></div>
+<div class="motes" aria-hidden="true">
+  <i style="left:5%;width:5px;height:5px;--mh:88;animation-duration:19s;animation-delay:-2s"></i>
+  <i style="left:12%;width:7px;height:7px;--mh:276;animation-duration:24s;animation-delay:-9s"></i>
+  <i style="left:20%;width:4px;height:4px;--mh:332;animation-duration:16s;animation-delay:-5s"></i>
+  <i style="left:28%;width:6px;height:6px;--mh:192;animation-duration:22s;animation-delay:-14s"></i>
+  <i style="left:36%;width:5px;height:5px;--mh:158;animation-duration:18s;animation-delay:-1s"></i>
+  <i style="left:44%;width:4px;height:4px;--mh:276;animation-duration:26s;animation-delay:-11s"></i>
+  <i style="left:51%;width:7px;height:7px;--mh:88;animation-duration:20s;animation-delay:-6s"></i>
+  <i style="left:59%;width:5px;height:5px;--mh:332;animation-duration:23s;animation-delay:-16s"></i>
+  <i style="left:67%;width:6px;height:6px;--mh:192;animation-duration:17s;animation-delay:-3s"></i>
+  <i style="left:74%;width:4px;height:4px;--mh:276;animation-duration:25s;animation-delay:-12s"></i>
+  <i style="left:81%;width:6px;height:6px;--mh:158;animation-duration:19s;animation-delay:-7s"></i>
+  <i style="left:88%;width:5px;height:5px;--mh:88;animation-duration:21s;animation-delay:-18s"></i>
+  <i style="left:94%;width:4px;height:4px;--mh:332;animation-duration:15s;animation-delay:-4s"></i>
+  <i style="left:16%;width:4px;height:4px;--mh:192;animation-duration:27s;animation-delay:-20s"></i>
+  <i style="left:63%;width:5px;height:5px;--mh:158;animation-duration:22s;animation-delay:-10s"></i>
+  <i style="left:38%;width:6px;height:6px;--mh:276;animation-duration:24s;animation-delay:-15s"></i>
+</div>
+<div class="topfoil"></div>
+<a class="ghtop" href="https://github.com/wuisabel-gif" target="_blank" rel="noopener" aria-label="GitHub: wuisabel-gif" title="GitHub: wuisabel-gif">
+  <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.76-3.65 3.95.29.25.54.74.54 1.49 0 1.07-.01 1.94-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+</a>
+
+<div class="wrap">
+
+  <header>
+    <svg class="logo" viewBox="0 0 120 90" role="img" aria-label="Roam logo">
+      <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#A6C44E"/><stop offset=".35" stop-color="#E054A0"/>
+        <stop offset=".7" stop-color="#9B6BE0"/><stop offset="1" stop-color="#3FB6CF"/>
+      </linearGradient></defs>
+      <g fill="none" stroke="url(#rg)" stroke-linecap="round">
+        <path class="arch a1" style="--o:.4"  stroke-width="3"   d="M16 82 L16 40 C16 8 104 8 104 40 L104 82"/>
+        <path class="arch a2" style="--o:.7"  stroke-width="2.6" d="M31 82 L31 46 C31 20 89 20 89 46 L89 82"/>
+        <path class="arch a3" style="--o:1"   stroke-width="2.2" d="M46 82 L46 52 C46 32 74 32 74 52 L74 82"/>
+        <circle cx="60" cy="76" r="3.4" fill="url(#rg)" stroke="none"/>
+      </g>
+    </svg>
+    <div class="kick">⚠ Prototype · immersive walkable 3D</div>
+    <h1 class="fr">Roam</h1>
+    <p class="lead">Immersive 3D worlds you actually walk through — a neon corridor of K-pop eras, a campus you wander, the endless backrooms. Step inside each one right here in your browser. <em>This is an early prototype — expect rough edges as the worlds grow.</em></p>
+    <div class="cta">
+      <a class="btn primary" href="#examples">▶ Explore the worlds</a>
+    </div>
+  </header>
+
+  <section id="examples">
+    <div class="seclabel">The worlds</div>
+    <h2 class="fr">Step inside</h2>
+    <p class="sub">Click a poster to launch a world right here, or open it fullscreen to really roam. <span class="scrollhint">→ scroll for more</span></p>
+    <button class="exnav prev" type="button" aria-label="Scroll left">‹</button>
+    <button class="exnav next" type="button" aria-label="Scroll right">›</button>
+    <div class="examples">
+
+      <div class="ex" style="--h:276;--pc1:#2a1850;--pc2:#0a0712;" data-src="https://wuisabel-gif.github.io/kpop-crush/">
+        <div class="frame">
+          <button class="poster" type="button" aria-label="Launch Kpop Crush demo">
+            <span class="play">▶</span><span class="pl">Launch demo</span>
+          </button>
+        </div>
+        <div class="meta">
+          <span class="eng">CSS 3D transforms</span>
+          <h3 class="fr">Kpop Crush — The Hall of Eras</h3>
+          <p>Scroll-up to walk a neon corridor of 21 K-pop groups, flip a doorway for its info, then enter a full catalogue. Real photos + a background playlist.</p>
+          <a class="open" href="https://wuisabel-gif.github.io/kpop-crush/" target="_blank" rel="noopener">Open fullscreen ↗</a>
+        </div>
+      </div>
+
+      <div class="ex" style="--h:158;--pc1:#0c2a22;--pc2:#0a0712;" data-src="college-playbook-3d_14.html">
+        <div class="frame">
+          <button class="poster" type="button" aria-label="Launch College Playbook demo">
+            <span class="play">▶</span><span class="pl">Launch demo</span>
+          </button>
+        </div>
+        <div class="meta">
+          <span class="eng">A-Frame · WebGL</span>
+          <h3 class="fr">The College Playbook — Campus Walk</h3>
+          <p>A true-3D walkable scene built with A-Frame: a ground plane, lights, and signage you move a camera through — headset-ready out of the box.</p>
+          <a class="open" href="college-playbook-3d_14.html" target="_blank" rel="noopener">Open fullscreen ↗</a>
+        </div>
+      </div>
+
+      <div class="ex" style="--h:48;--pc1:#3a3209;--pc2:#0a0712;" data-src="https://wuisabel-gif.github.io/backroom_level_0/">
+        <div class="frame">
+          <button class="poster" type="button" aria-label="Launch Backrooms Level 0 demo">
+            <span class="play">▶</span><span class="pl">Launch demo</span>
+          </button>
+        </div>
+        <div class="meta">
+          <span class="eng">WebGL · my build</span>
+          <h3 class="fr">Backrooms — Level 0</h3>
+          <p>A first-person walk through the liminal "backrooms": endless yellow rooms, buzzing lights, that uncanny empty hum. My own build, hosted in its own repo — a sharp study in building dread from almost nothing.</p>
+          <a class="open" href="https://wuisabel-gif.github.io/backroom_level_0/" target="_blank" rel="noopener">Open fullscreen ↗</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="https://wuisabel-gif.github.io/kpop-crush/" target="_blank" rel="noopener">Kpop Crush ↗</a>
+      <a href="college-playbook-3d_14.html" target="_blank" rel="noopener">Campus Walk ↗</a>
+      <a href="https://wuisabel-gif.github.io/backroom_level_0/" target="_blank" rel="noopener">Backrooms L0 ↗</a>
+    </div>
+    <div class="mono" style="font-size:11px;letter-spacing:.14em;">ROAM · IMMERSIVE WALKABLE 3D · PROTOTYPE</div>
+    <div class="mono" style="font-size:11px;letter-spacing:.14em;margin-top:8px;color:var(--mut);">© 2026 <a href="https://github.com/wuisabel-gif" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--line);">wuisabel-gif</a> · all rights reserved</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- arrow-button scrolling for the example row ----
+  (function(){
+    var row=document.querySelector('.examples'), prev=document.querySelector('.exnav.prev'), next=document.querySelector('.exnav.next');
+    if(!row||!prev||!next) return;
+    function step(){ return (row.querySelector('.ex')?row.querySelector('.ex').offsetWidth:340)+18; }
+    function sync(){ prev.disabled=row.scrollLeft<=2; next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; }
+    prev.addEventListener('click',function(){ row.scrollBy({left:-step(),behavior:'smooth'}); });
+    next.addEventListener('click',function(){ row.scrollBy({left: step(),behavior:'smooth'}); });
+    row.addEventListener('scroll',sync,{passive:true}); addEventListener('resize',sync); sync();
+  })();
+
+  document.querySelectorAll('.ex').forEach(function(ex){
+    var btn=ex.querySelector('.poster'), src=ex.getAttribute('data-src');
+    btn.addEventListener('click', function(){
+      var f=document.createElement('iframe');
+      f.src=src; f.setAttribute('loading','lazy');
+      f.setAttribute('allow','autoplay; encrypted-media; fullscreen; xr-spatial-tracking; pointer-lock; gamepad');
+      f.title=ex.querySelector('h3').textContent;
+      btn.replaceWith(f);
+    });
+  });
+})();
+</script>
+</body>
+</html>
