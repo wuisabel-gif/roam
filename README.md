@@ -48,4 +48,4 @@ Two tracks, both single-file and dependency-light:
 
 ---
 
-© 2026 [wuisabel-gif](https://github.com/wuisabel-gif) · all rights reserved
+© 2026 [wuisabel-gif](https://github.com/wuisabel-gif) · licensed under [Apache-2.0](LICENSE)
