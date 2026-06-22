@@ -36,7 +36,7 @@ Two tracks, both single-file and dependency-light:
 | World | Live |
 |---|---|
 | **Kpop Crush — The Hall of Eras** (CSS-3D corridor) | https://wuisabel-gif.github.io/kpop-crush/ |
-| **The College Playbook — Campus Walk** (A-Frame) | included in this repo |
+| **The College Playbook — Campus Walk** (A-Frame) | https://wuisabel-gif.github.io/university-of-spoiled-children/ |
 | **Backrooms — Level 0** (WebGL) | https://wuisabel-gif.github.io/backroom_level_0/ |
 
 ## What's in this repo
@@ -44,7 +44,7 @@ Two tracks, both single-file and dependency-light:
 - `SKILL.md` — the skill Claude follows (mental model, build order, dials, failure modes)
 - `references/recipes.md` — copy-paste recipes (CSS-3D, A-Frame, Three.js no-build, advanced)
 - `index.html` — the showcase site (this landing page)
-- `college-playbook-3d_14.html` — the Campus Walk world
+- `roam-themes-and-examples.pdf` — the themes & example-prompts field guide
 
 ---
 
