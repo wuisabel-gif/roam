@@ -1,31 +1,50 @@
-# Roam
+# Roam — a Claude skill for walkable 3D
 
-**Immersive 3D worlds you actually walk through** — a small, growing collection of browser-based walkable experiences.
+**Roam** is a [Claude](https://claude.com/claude-code) skill for building immersive 3D worlds you walk through — scroll-driven corridors and true first-person rooms — each a single HTML file with **no build step**. Install it on your own Claude, then just describe the world you want.
 
-> ⚠️ Early prototype. Expect rough edges as the worlds grow.
+🔗 **Live showcase:** https://wuisabel-gif.github.io/roam/
 
-## The worlds
+> ⚠️ Early prototype — expect rough edges as the skill grows.
 
-| World | What it is | Live |
-|---|---|---|
-| **Kpop Crush — The Hall of Eras** | Scroll-up to walk a neon corridor of 21 K-pop groups; flip a doorway for its info, then enter a full catalogue. Real photos + a background playlist. | https://wuisabel-gif.github.io/kpop-crush/ |
-| **The College Playbook — Campus Walk** | A true-3D walkable campus built with A-Frame — a ground plane, lights, and signboards you walk up to. Ships with this site. | included here |
-| **Backrooms — Level 0** | A first-person walk through the liminal "backrooms": endless yellow rooms, buzzing lights, that uncanny empty hum. | https://wuisabel-gif.github.io/backroom_level_0/ |
+## Install on your Claude
 
-## Run it locally
+Clone this repo straight into your skills folder:
 
-It's a static site — no build step. Serve the folder and open `index.html`:
-
-```
-python3 -m http.server 8000
-# then visit http://localhost:8000/
+```bash
+git clone https://github.com/wuisabel-gif/roam.git ~/.claude/skills/roam
 ```
 
-The Campus Walk loads from this repo; Kpop Crush and the Backrooms load from their own live sites.
+No git? [Download the repo](https://github.com/wuisabel-gif/roam) and copy the folder to `~/.claude/skills/roam`.
 
-## Tech
+Then **restart Claude** and ask:
 
-Plain HTML/CSS/JS. The landing page is a single `index.html` (animated corridor background, drifting light motes, an SVG logo, and a horizontally-scrolling gallery that launches each world inline). The walkable worlds themselves use CSS 3D transforms, A-Frame, and Three.js.
+```
+Use the roam skill to build a walkable 3D museum of my photography.
+```
+
+…or type `/roam`. Claude reads `SKILL.md` for the technique and `references/recipes.md` for copy-paste code.
+
+## What it builds
+
+Two tracks, both single-file and dependency-light:
+
+- **CSS-3D corridor** — turn any ordered list into a glowing doorway-lined hallway you scroll through (flip-for-info cards, HUD, end handoff). Zero dependencies.
+- **Three.js first-person rooms** — a real room you walk with WASD + mouse-look: GLB furniture, tileable textures, and rooms you step inside *behind paintings*. Loaded from a CDN importmap — still no build.
+
+## Worlds made with it
+
+| World | Live |
+|---|---|
+| **Kpop Crush — The Hall of Eras** (CSS-3D corridor) | https://wuisabel-gif.github.io/kpop-crush/ |
+| **The College Playbook — Campus Walk** (A-Frame) | included in this repo |
+| **Backrooms — Level 0** (WebGL) | https://wuisabel-gif.github.io/backroom_level_0/ |
+
+## What's in this repo
+
+- `SKILL.md` — the skill Claude follows (mental model, build order, dials, failure modes)
+- `references/recipes.md` — copy-paste recipes (CSS-3D, A-Frame, Three.js no-build, advanced)
+- `index.html` — the showcase site (this landing page)
+- `college-playbook-3d_14.html` — the Campus Walk world
 
 ---
 

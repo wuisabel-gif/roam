@@ -52,8 +52,18 @@
   @keyframes drift{0%{transform:translateY(0) scale(.5);opacity:0;}12%{opacity:.7;}88%{opacity:.45;}100%{transform:translateY(-112vh) scale(1.15);opacity:0;}}
   @media (prefers-reduced-motion:reduce){.motes{display:none;}}
 
+  /* install steps */
+  .steps{list-style:none;max-width:720px;counter-reset:s;}
+  .steps li{counter-increment:s;position:relative;padding:0 0 24px 50px;color:var(--soft);}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:-3px;width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;
+    color:#0a0712;background:linear-gradient(100deg,#C492E6,#9B6BE0);box-shadow:0 6px 16px hsl(276 80% 55%/.4);}
+  .steps b{color:var(--ink);}
+  .code{margin:12px 0 4px;background:#0c0820;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;}
+  .code code{font-family:"Space Mono",monospace;font-size:13px;line-height:1.5;color:#cdbff0;white-space:pre;}
+
   /* logo mark */
-  .logo{display:block;margin:0 auto 18px;width:74px;height:auto;filter:drop-shadow(0 4px 22px hsl(276 80% 55%/.5));}
+  .logo{display:block;margin:0 auto 22px;width:clamp(120px,15vw,180px);height:auto;filter:drop-shadow(0 6px 28px hsl(276 80% 55%/.55));}
   @media (prefers-reduced-motion:no-preference){.logo .arch{animation:archpulse 4s ease-in-out infinite;}}
   .logo .arch.a2{animation-delay:.5s;} .logo .arch.a3{animation-delay:1s;}
   @keyframes archpulse{0%,100%{opacity:var(--o,1);}50%{opacity:calc(var(--o,1) * .55);}}
@@ -182,18 +192,19 @@
         <circle cx="60" cy="76" r="3.4" fill="url(#rg)" stroke="none"/>
       </g>
     </svg>
-    <div class="kick">⚠ Prototype · immersive walkable 3D</div>
+    <div class="kick">A Claude skill · walkable 3D, no build step</div>
     <h1 class="fr">Roam</h1>
-    <p class="lead">Immersive 3D worlds you actually walk through — a neon corridor of K-pop eras, a campus you wander, the endless backrooms. Step inside each one right here in your browser. <em>This is an early prototype — expect rough edges as the worlds grow.</em></p>
+    <p class="lead">A Claude skill for building immersive 3D worlds you walk through — corridors, rooms, galleries — each a single HTML file with no build step. Install it on your own Claude, then just describe the world you want. The builds below were all made with it. <em>Early prototype — expect rough edges.</em></p>
     <div class="cta">
-      <a class="btn primary" href="#examples">▶ Explore the worlds</a>
+      <a class="btn primary" href="#install">↓ Install the skill</a>
+      <a class="btn ghost" href="#examples">▶ See what it builds</a>
     </div>
   </header>
 
   <section id="examples">
-    <div class="seclabel">The worlds</div>
-    <h2 class="fr">Step inside</h2>
-    <p class="sub">Click a poster to launch a world right here, or open it fullscreen to really roam. <span class="scrollhint">→ scroll for more</span></p>
+    <div class="seclabel">Built with the skill</div>
+    <h2 class="fr">What it builds</h2>
+    <p class="sub">Every world below was made by asking Claude to use Roam. Click a poster to step inside, or open it fullscreen to really roam. <span class="scrollhint">→ scroll for more</span></p>
     <button class="exnav prev" type="button" aria-label="Scroll left">‹</button>
     <button class="exnav next" type="button" aria-label="Scroll right">›</button>
     <div class="examples">
@@ -243,6 +254,23 @@
     </div>
   </section>
 
+  <section id="install">
+    <div class="seclabel">Get it</div>
+    <h2 class="fr">Install on your Claude</h2>
+    <p class="sub">Roam is a <b>Claude skill</b> — a folder Claude reads and follows. Drop it into your skills directory and Claude can build walkable 3D worlds for you, on demand. Works with Claude Code (and any Claude that reads a skills folder).</p>
+    <ol class="steps">
+      <li><b>Add the skill to Claude.</b> In a terminal, clone it straight into your skills folder:
+        <pre class="code"><code>git clone https://github.com/wuisabel-gif/roam.git ~/.claude/skills/roam</code></pre>
+        No git? <a href="https://github.com/wuisabel-gif/roam" target="_blank" rel="noopener" style="color:hsl(280 80% 80%)">Download the repo</a> and copy the folder to <code>~/.claude/skills/roam</code>.
+      </li>
+      <li><b>Restart Claude</b> so it picks up the new skill.</li>
+      <li><b>Ask for a world.</b> Type <code>/roam</code>, or just describe what you want:
+        <pre class="code"><code>Use the roam skill to build a walkable 3D
+museum of my photography.</code></pre>
+      </li>
+    </ol>
+    <p class="sub" style="margin-top:18px">Under the hood, Claude reads <code>SKILL.md</code> for the technique and <code>references/recipes.md</code> for copy-paste code — corridors you scroll (CSS-3D) and first-person rooms you walk (Three.js, no build step).</p>
+  </section>
 
 </div>
 
